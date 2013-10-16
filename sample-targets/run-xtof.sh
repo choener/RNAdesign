@@ -5,7 +5,7 @@ echo "xtof"
 #  --optfun "-Ged" \
 #  --optfun "eos(1)+eos(2)+eos(3) - 3*gibbs + 1 * ((eos(1)-eos(2))^2 + (eos(1)-eos(3))^2 + (eos(2)-eos(3))^2)" \
 #  --optfun "-sum(ed,all)" \
-cat tests/xtof | ./cabal-dev/bin/RNASequenceDesign -n 50 --thin 200 -b 100 --scale 1 \
+cat sample-targets/xtof | ./.cabal-sandbox/bin/RNAdesign -n 50 --thin 200 -b 100 --scale 1 \
   --optfun "eos(1)+eos(2)+eos(3) - 3*gibbs + 1 * ((eos(1)-eos(2))^2 + (eos(1)-eos(3))^2 + (eos(2)-eos(3))^2)" \
   > xtof.out
 cat xtof.out | head -n 40
@@ -14,7 +14,7 @@ for i in `cat xtof.out | head -n 7 | tail -n 5 | awk '{print $1}'`
 do
   echo $i | RNAfold -p
 
-  cat dot.ps | ./cabal-dev/bin/RNAdotplot \
+  cat dot.ps | ./.cabal-sandbox/bin/RNAdotplot \
     -s "((((....))))....((((....))))........" \
     -s "........((((....((((....))))....))))" \
     -s "((((((((....))))((((....))))....))))" \
