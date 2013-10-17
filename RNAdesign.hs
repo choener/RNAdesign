@@ -47,18 +47,20 @@ data Config = Config
 --  , exhaustive  :: Bool     -- TODO want to think about this for number of structures > 3, IF the total sequence space size is less than say 100.000
   , initial     :: String
   , sequenceConstraints :: Bool
+  , explore     :: Bool
   } deriving (Show,Data,Typeable)
 
 config = Config
   { number      =  50 &= help "Number of candidate sequences to generate (50)"
   , thin        =  50 &= help "keep only every n'th sequence (50)"
   , burnin      = 100 &= help "remove the first burnin sequences (100)"
-  , scale       =   1 &= help "acceptance scale parameter (1)"
+  , scale       =   1 &= help "acceptance scale parameter (1); exponentially distributed with mean 'scale^(-1)' (smaller scale means longer jumps)"
   , optfun      = "sum(eos,all)" &= help "optimization function, \"sum(eos,all)\" tries to minimize the sum of the energies"
   , veclen      = 1000000 &= help "multiple structure constraints lead to large connected components, veclen restricts the number of component solutions to store."
   , turner      = "./params" &= help "directory containing the Turner 2004 RNA energy tables (with a default of \"./params/\""
 --  , exhaustive  = False &= help "exhaustively search the nucleotide space"
   , initial     = "" &= help "start from this initial sequence"
+  , explore     = def &= help "explore sequences, do not sort of nub list"
   , sequenceConstraints = def &= help "activate sequence constraints"
   } &= help shortHelp &= details longHelp &= summary "RNAdesign v0.0.2, (C) Christian Hoener zu Siederdissen 2013, choener@tb.univie.ac.at" &= program "RNAdesign"
 
@@ -133,8 +135,12 @@ main = do
   printf "# Size of sequence space: %d %s\n\n" pna {-(product . map numAssignments $ assignments dp)-} (show . map numAssignments $ assignments dp)
   unless (pna>0) $ error "empty sequence space, aborting!"
   mapM_ (\ys -> printf "%s %4d %8.2f\n" (concatMap show . VU.toList . candidate . head $ ys) (length ys) (ropt . score $ head ys))
-    . sortBy (comparing (ropt . score . head))
-    . groupBy ((==) `on` candidate)
-    . sortBy (comparing candidate)
+    . ( if   explore
+        then map (:[])
+        else ( sortBy (comparing (ropt . score . head))
+             . groupBy ((==) `on` candidate)
+             . sortBy (comparing candidate)
+             )
+      )
     $ xs
 
