@@ -1,5 +1,5 @@
 name:           RNAdesign
-version:        0.0.2.1
+version:        0.1.0.0
 author:         Christian Hoener zu Siederdissen
 maintainer:     choener@tbi.univie.ac.at
 category:       Bioinformatics
@@ -29,7 +29,7 @@ description:
                 .
                 Christian Hoener zu Siederdissen, Stefan Hammer, Ingrid Abfalter, Ivo L. Hofacker, Christoph Flamm, Peter F. Stadler
                 .
-                @A Graph Coloring Approach to Designing Multi-Stable Nucleic Acid Sequences@
+                @Computational design of RNAs with complex energy landscapes@
                 .
                 Biopolymers, 99, 12, 1124-1136, 2013, Wiley
 
@@ -62,7 +62,7 @@ library
     ParsecTools               >= 0.0.2 && < 0.0.3 ,
     PrimitiveArray            >= 0.5              ,
     RNAFold                   >= 1.99.3.3         ,
-    ViennaRNA-bindings        >= 0.0.2.3
+    ViennaRNA-bindings        >= 0.1.0.0
   exposed-modules:
     BioInf.RNAdesign
     BioInf.RNAdesign.Assignment
