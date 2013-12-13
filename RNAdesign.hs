@@ -113,7 +113,7 @@ main = do
   cmds@Config{..} <- cmdArgs config
   turner <- fmap turnerToVienna $ TI.fromDir turner "" ".dat" 
   strs' <- fmap lines $ getContents
-  let (scs,strs) = first (filter ((">"/=) . take 1)) . partition (any isAlpha) $ strs'
+  let (scs,strs) = partition (any isAlpha) . filter ((">"/=) . take 1) $ strs'
   unless (length strs > 0) $ error "no structures given!"
   let l = length $ head strs
   unless (all ((l==) . length) strs) $ error "structures of different size detected"

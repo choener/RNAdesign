@@ -96,7 +96,7 @@ executable RNAdesign
     ParsecTools               >= 0.0.2 && < 0.0.3 ,
     PrimitiveArray            >= 0.5              ,
     RNAFold                   >= 1.99.3.3         ,
-    ViennaRNA-bindings        >= 0.0.2.3
+    ViennaRNA-bindings        >= 0.1.0.0
   main-is:
     RNAdesign.hs
   ghc-options:

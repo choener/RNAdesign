@@ -163,7 +163,7 @@ mkDesignProblem asnLimit xs scs = dp where
         }
   gs = independentGraphs xs
   as = map (allCandidates asnLimit sv) gs
-  ss = M.map fixup . M.unionsWith (++) $ map (M.fromList . zip [0..] . (map ((:[]). mkNuc))) scs
+  ss = M.map fixup . M.unionsWith ((nub .) . (++)) $ map (M.fromList . zip [0..] . (map ((:[]). mkNuc))) scs
   sv = V.fromList $ map (\k -> M.findWithDefault acgu k ss) [0 .. length (head xs) - 1]
   fixup zs = filter (/=nN) $ if (all (==nN) zs) then acgu else zs
 
