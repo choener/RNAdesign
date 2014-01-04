@@ -3,15 +3,16 @@
 
 module BioInf.RNAdesign.Assignment where
 
-import Control.Arrow
-import Data.Graph.Inductive.Graph
-import Data.List (nub,sortBy,sort,genericLength)
-import Data.Ord
+import           Control.Arrow
+import           Control.Lens
+import           Control.Lens.Tuple
+import           Data.Function
+import           Data.Graph.Inductive.Graph
+import           Data.Graph.Inductive.Query
+import           Data.List (nub,sortBy,sort,genericLength)
+import           Data.Ord
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
-import Control.Lens.Tuple
-import Control.Lens
-import Data.Function
 
 import Biobase.Primary
 import Biobase.Secondary.Vienna
@@ -19,10 +20,9 @@ import Data.Graph.Inductive.Query.Ear
 
 import BioInf.RNAdesign.Graph
 
-import Data.Graph.Inductive.Query
-import Debug.Trace
 
 
+-- |
 
 data Assignment = Assignment
   { columns        :: VU.Vector Int

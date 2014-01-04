@@ -5,36 +5,38 @@
 {-# LANGUAGE NoMonomorphismRestriction #-}
 {-# LANGUAGE RecordWildCards #-}
 
--- |
+-- | Given one or more structural constraints, and possibly sequence
+-- constraints for certain columns, design a sequence which is optimal
+-- according to a user-defined optimization function. Optimization works via a
+-- Markov Chain.
 
 module Main where
 
-import System.Console.CmdArgs
-import Data.List
-import Data.Char (isAlpha)
-import Control.Monad
-import System.Random.MWC.Monad
-import System.Random.MWC.Distributions.Monad
-import qualified Data.Vector.Unboxed as VU
-import Text.Printf
-import Data.Ord
+import           Control.Arrow
+import           Control.Monad
+import           Data.Char (isAlpha)
+import           Data.Function
+import           Data.List
+import           Data.Ord
 import qualified Data.Vector.Fusion.Stream.Monadic as SM
-import Control.Arrow
-import Data.Function
-import System.IO
+import qualified Data.Vector.Unboxed as VU
+import           System.Console.CmdArgs
+import           System.IO
+import           System.Random.MWC.Distributions.Monad
+import           System.Random.MWC.Monad
+import           Text.Printf
 
-import Biobase.Primary
-import Biobase.Vienna
+import           Biobase.Primary
+import           Biobase.Vienna
 import qualified Biobase.Turner.Import as TI
 
 import BioInf.RNAdesign
+import BioInf.RNAdesign.CandidateChain
 import BioInf.RNAdesign.Assignment
 
-import Debug.Trace
 
 
-
--- * configuration
+-- * Configuration
 
 data Config = Config
   { number      :: Int
@@ -121,23 +123,24 @@ main = do
   let defOpt old new = let oldS = scoreSequence optfun turner dp old
                            newS = scoreSequence optfun turner dp new
                        in  do t <- exponential scale
-                              return $ ropt newS <= ropt oldS || t >= ropt newS - ropt oldS
+                              return $ unScore newS <= unScore oldS || t >= unScore newS - unScore oldS
   let calcScore = scoreSequence optfun turner dp
   let walk old new = do t <- exponential scale
-                        let sn = ropt $ score new
-                        let so = ropt $ score old
+                        let sn = unScore $ score new
+                        let so = unScore $ score old
                         return $ sn <= so || t >= sn - so
   let ini = if null initial         -- start from initial sequence or generate one from the ensemble
-              then mkInitial l dp
-              else return $ Candidate (mkPrimary initial) (Score [] 999999)
-  xs <- runWithSystemRandom . asRandIO $ (ini >>= SM.toList . unfoldStreamNew burnin number thin calcScore walk dp)
+              then mkInitial calcScore l dp
+              else let pri = mkPrimary initial
+                   in  return $ Candidate pri (calcScore pri)
+  xs <- runWithSystemRandom . asRandIO $ (ini >>= SM.toList . unfoldStreamCandidate burnin number thin calcScore walk dp)
   let pna = product . map numAssignments $ assignments dp
-  printf "# Size of sequence space: %d %s\n\n" pna {-(product . map numAssignments $ assignments dp)-} (show . map numAssignments $ assignments dp)
+  printf "# Size of sequence space: %d %s\n\n" pna (show . map numAssignments $ assignments dp)
   unless (pna>0) $ error "empty sequence space, aborting!"
-  mapM_ (\ys -> printf "%s %4d %8.2f\n" (concatMap show . VU.toList . candidate . head $ ys) (length ys) (ropt . score $ head ys))
+  mapM_ (\ys -> printf "%s %4d %8.2f\n" (concatMap show . VU.toList . candidate . head $ ys) (length ys) (unScore . score $ head ys))
     . ( if   explore
         then map (:[])
-        else ( sortBy (comparing (ropt . score . head))
+        else ( sortBy (comparing (unScore . score . head))
              . groupBy ((==) `on` candidate)
              . sortBy (comparing candidate)
              )

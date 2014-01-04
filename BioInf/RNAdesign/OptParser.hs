@@ -11,12 +11,12 @@ module BioInf.RNAdesign.OptParser
   ( parseOptString
   ) where
 
+import Control.Applicative
 import Text.Parsec.Expr
 import Text.Parsec hiding ((<|>))
 import Text.Parsec.Language
-import Text.Parsec.Token
-import Control.Applicative
 import Text.Parsec.String
+import Text.Parsec.Token
 
 import Text.Parsec.Numbers
 
@@ -58,7 +58,7 @@ mkSingleOp (s,f) = try $ g <$ string s <* string "(" <*> many1 digit <* string "
   g x = f (read x)
 
 mkMultiOp :: NumSecStructs -> (SingleOp,MultiOp) -> GenParser Char st Double
-mkMultiOp nss ((s,sf),(m,mf)) = {- (\xs -> error $ show (xs, map sf xs, mf $ map sf xs)) <$ -} (\xs -> mf $ map sf xs) <$
+mkMultiOp nss ((s,sf),(m,mf)) = (\xs -> mf $ map sf xs) <$
   string m <* string "(" <* string s <* string "," <*> secs <* string ")" where
     secs  =   try ([1..nss] <$ string "all")
           <|> map read <$> many1 digit `sepBy1` string ","
@@ -73,7 +73,7 @@ parseMultiOp nss sops mops = choice $ map (try . mkMultiOp nss) [(s,m) | s<-sops
 parseGlobalOp gops = choice $ map (try . mkGlobalOp) gops
 
 optable = [ [prefix "-" negate, prefix "+" id]
-          , [binary "^" (**) AssocLeft] --, binary "**" (**) AssocLeft]
+          , [binary "^" (**) AssocLeft]
           , [binary "*" (*) AssocLeft, binary "/" (/) AssocLeft]
           , [binary "+" (+) AssocLeft, binary "-" (-) AssocLeft]
           ]

@@ -1,12 +1,12 @@
 
 module BioInf.RNAdesign.Graph where
 
-import Data.Graph.Inductive.Graph
+import Control.Arrow (first,second)
 import Data.Graph.Inductive.Basic
+import Data.Graph.Inductive.Graph
 import Data.Graph.Inductive.PatriciaTree
 import Data.Graph.Inductive.Query
 import Data.List (nub,partition)
-import Control.Arrow (first,second)
 
 import Biobase.Secondary.Diagrams
 

@@ -27,11 +27,11 @@ description:
                 .
                 If you find this program useful, please cite:
                 .
+                @
                 Christian Hoener zu Siederdissen, Stefan Hammer, Ingrid Abfalter, Ivo L. Hofacker, Christoph Flamm, Peter F. Stadler
-                .
-                @Computational design of RNAs with complex energy landscapes@
-                .
+                Computational design of RNAs with complex energy landscapes
                 Biopolymers, 99, 12, 1124-1136, 2013, Wiley
+                @
 
 
 
@@ -66,6 +66,7 @@ library
   exposed-modules:
     BioInf.RNAdesign
     BioInf.RNAdesign.Assignment
+    BioInf.RNAdesign.CandidateChain
     BioInf.RNAdesign.Graph
     BioInf.RNAdesign.LogMultinomial
     BioInf.RNAdesign.OptParser

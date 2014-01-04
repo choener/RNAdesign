@@ -4,6 +4,7 @@ module BioInf.RNAdesign.LogMultinomial where
 import qualified Data.Vector.Unboxed as VU
 
 
+
 logMultinomial :: Int -> VU.Vector Double -> VU.Vector Int -> Double
 logMultinomial n' ps xs'
   | VU.length ps /= VU.length xs' = error "logMultinomial: P-vector and count-vector of unequal length"
