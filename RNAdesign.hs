@@ -133,7 +133,7 @@ main = do
               then mkInitial calcScore l dp
               else let pri = mkPrimary initial
                    in  return $ Candidate pri (calcScore pri)
-  xs <- runWithSystemRandom . asRandIO $ (ini >>= SM.toList . unfoldStreamCandidate burnin number thin calcScore walk dp)
+  xs <- runWithSystemRandom . asRandIO $ (ini >>= SM.toList . unfoldStream burnin number thin calcScore walk dp)
   let pna = product . map numAssignments $ assignments dp
   printf "# Size of sequence space: %d %s\n\n" pna (show . map numAssignments $ assignments dp)
   unless (pna>0) $ error "empty sequence space, aborting!"

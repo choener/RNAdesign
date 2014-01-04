@@ -53,23 +53,24 @@ data DesignProblem = DesignProblem
 mkInitial :: (MonadPrim m, PrimMonad m) => (Primary -> Score) -> Int -> DesignProblem -> Rand m Candidate
 mkInitial scoring l dp = do
   let z = VU.replicate l nA
-  foldM (mutateOneAssignmentCandidateWith scoring (\_ _ -> return True)) (Candidate z (scoring z)) $ assignments dp
+  foldM (mutateOneAssignmentWith scoring (\_ _ -> return True)) (Candidate z (scoring z)) $ assignments dp
 
 -- | Create a stream of 'Candidate's from an initial candidate.
 
-unfoldStreamCandidate
+unfoldStream
   :: forall m . (MonadPrim m, PrimMonad m)
   => Int -> Int -> Int -> (Primary -> Score) -> (Candidate -> Candidate -> Rand m Bool) -> DesignProblem -> Candidate
   -> SM.Stream (Rand m) Candidate
-unfoldStreamCandidate burnin number thin score f dp = go where
-  go s  = SM.map snd                                                          -- remove remaining indices from stream
-        . SM.take number                                                      -- take the number of sequences we want
-        . SM.filter ((==0) . flip mod thin . fst)                             -- keep only every thin'th sequence
-        . SM.indexed                                                          -- add index
-        . SM.drop burnin                                                      -- drop the burnin sequences
-        . SM.drop 1                                                           -- drop original input
-        . SM.scanlM' (mutateOneAssignmentCandidateWith score f) s             -- starting with 's', mutate s further and further using cycled assignments
-        $ SM.unfoldr (Just . first head . splitAt 1) (cycle $ assignments dp) -- create inifinite cycled assignments
+unfoldStream burnin number thin score f dp = go where
+  go s  = SM.map snd                                      -- remove remaining indices from stream
+        . SM.take number                                  -- take the number of sequences we want
+        . SM.filter ((==0) . flip mod thin . fst)         -- keep only every thin'th sequence
+        . SM.indexed                                      -- add index
+        . SM.drop burnin                                  -- drop the burnin sequences
+        . SM.drop 1                                       -- drop original input
+        . SM.scanlM' (mutateOneAssignmentWith score f) s  -- starting with 's', mutate s further and further using cycled assignments
+        $ SM.unfoldr (Just . first head . splitAt 1)
+                     (cycle $ assignments dp)             -- create inifinite cycled assignments
 
 -- | Mutate the current (or "old") sequence under the possible 'assignment's as
 -- prescribed by 'Assignment'. The modifying assignment is selected uniformly.
@@ -78,14 +79,14 @@ unfoldStreamCandidate burnin number thin score f dp = go where
 -- it is better, but choosing "new" as well if some stochastic value (hence
 -- dependence on @Rand m@) indicates so.
 
-mutateOneAssignmentCandidateWith
+mutateOneAssignmentWith
   :: (MonadPrim m, PrimMonad m)
   => (Primary -> Score)                       -- ^ the likelihood function, gives a sequence a score
   -> (Candidate -> Candidate -> Rand m Bool)  -- ^ choose between old and new sequence (monadic, stochastic)
   -> Candidate                                -- ^ "old" / current sequence
   -> Assignment                               -- ^ possible assignments for the sequence
   -> Rand m Candidate                         -- ^ the "new" sequence
-mutateOneAssignmentCandidateWith score f old Assignment{..} = do
+mutateOneAssignmentWith score f old Assignment{..} = do
   i <- uniformR (0,V.length assignment -1) -- inclusive range for Int
   let cs = VU.zip columns (assignment V.! i)
   let nw = VU.update (candidate old) cs
