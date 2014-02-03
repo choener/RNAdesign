@@ -72,7 +72,7 @@ config = Config
   , sequenceConstraints = def             &= help "activate sequence constraints"
   , showManual          = def             &= help ""
   } &= help shortHelp
-    &= details [] -- longHelp
+    &= details []
     &= summary ("RNAdesign " ++ showVersion version ++ " (C) Christian Hoener zu Siederdissen 2013--2014, choener@tbi.univie.ac.at")
     &= program "RNAdesign"
 
@@ -88,12 +88,13 @@ main = do
   then BS.putStrLn embeddedManual
   else do
   turner <- fmap turnerToVienna $ TI.fromDir turner "" ".dat" 
-  strs' <- fmap lines $ getContents
+  strs' <- fmap (filter ((/="#") . take 1) . lines) $ getContents
   let (scs,strs) = partition (any isAlpha) . filter ((">"/=) . take 1) $ strs'
   unless (length strs > 0) $ error "no structures given!"
   let l = length $ head strs
   unless (all ((l==) . length) strs) $ error "structures of different size detected"
-  let dp = mkDesignProblem veclen strs (if sequenceConstraints then scs else [])
+  unless (not sequenceConstraints || sequenceConstraints && length scs<=1) $ error "sequence constraint error"
+  let dp = mkDesignProblem veclen strs (if sequenceConstraints && length scs==1 then head scs else "")
   let defOpt old new = let oldS = scoreSequence optfun turner dp old
                            newS = scoreSequence optfun turner dp new
                        in  do t <- exponential scale

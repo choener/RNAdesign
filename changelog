@@ -1,6 +1,7 @@
 0.1.1.0
 
 - IUPAC nomenclature for sequence constraints
+- --showmanual will now show README.md, while --help shows shorter help
 
 0.1.0.0
 

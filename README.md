@@ -37,12 +37,12 @@ a the small tri-stable from our paper, which you should then pipe to RNAdesign:
 
 "cat tri-stable.dat:"
 
- # a tri-stable example target.
+ # a tri-stable example target. (optional comment)
  ((((....))))....((((....))))........
  ........((((....((((....))))....))))
  ((((((((....))))((((....))))....))))
- # below follows a trivial (and optional) sequence constraint.
- NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+ # below follows a simple (and optional) sequence constraint.
+ CKNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNB
 
 The input may contain many comments lines, starting with a hash "#" and at most
 one sequence constraint line. All of these lines are optional, except of course

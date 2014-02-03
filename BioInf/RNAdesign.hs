@@ -16,6 +16,7 @@ import           System.IO.Unsafe (unsafePerformIO)
 import           System.Random.MWC.Monad
 
 import           Biobase.Primary
+import           Biobase.Primary.IUPAC
 import           Biobase.Secondary.Diagrams
 import           Biobase.Secondary (PairIdx(..))
 import           Biobase.Vienna
@@ -94,7 +95,7 @@ scoreSequence optfun ener DesignProblem{..} s = score where
 -- | Given a set of structures, create the set of independent graphs and
 -- assignment possibilities.
 
-mkDesignProblem :: Int -> [String] -> [String] -> DesignProblem
+mkDesignProblem :: Int -> [String] -> String -> DesignProblem
 mkDesignProblem asnLimit xs scs = dp where
   dp = DesignProblem
         { structures  = map mkD1S xs
@@ -102,7 +103,8 @@ mkDesignProblem asnLimit xs scs = dp where
         }
   gs = independentGraphs xs
   as = map (allCandidates asnLimit sv) gs
-  ss = M.map fixup . M.unionsWith ((nub .) . (++)) $ map (M.fromList . zip [0..] . (map ((:[]). mkNuc))) scs
+  --ss = M.map fixup . M.unionsWith ((nub .) . (++)) $ map (M.fromList . zip [0..] . (map ((:[]). mkNuc))) scs
+  ss = M.map fixup . M.fromList . zip [0..] . map (map mkNuc . fromSymbol) $ scs
   sv = V.fromList $ map (\k -> M.findWithDefault acgu k ss) [0 .. length (head xs) - 1]
   fixup zs = filter (/=nN) $ if (all (==nN) zs) then acgu else zs
 

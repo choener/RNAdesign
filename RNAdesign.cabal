@@ -59,7 +59,7 @@ library
     fgl-extras-decompositions >= 0.1.0.0          ,
     BiobaseTurner             >= 0.3.1.1          ,
     BiobaseVienna             >= 0.3              ,
-    BiobaseXNA                >= 0.7.0.1          ,
+    BiobaseXNA                >= 0.8.1            ,
     ParsecTools               >= 0.0.2 && < 0.0.3 ,
     PrimitiveArray            >= 0.5.3            ,
     RNAFold                   >= 1.99.3.3         ,
