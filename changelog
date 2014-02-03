@@ -1,6 +1,7 @@
 ?
  * major cleanup of source
  * preparation for MCMC library transition
+ * small typos fixed
 
 0.1.0.0
  * uses new ViennaRNA bindings
