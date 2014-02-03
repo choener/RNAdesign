@@ -1,12 +1,19 @@
-?
- * major cleanup of source
- * preparation for MCMC library transition
- * small typos fixed
+0.1.1.0
+
+- IUPAC nomenclature for sequence constraints
 
 0.1.0.0
- * uses new ViennaRNA bindings
- * added correct name
+
+- major cleanup of source
+- preparation for MCMC library transition
+- small typos fixed
+
+0.1.0.0
+
+- uses new ViennaRNA bindings
+- added correct name
 
 0.0.2.1
- * post-publication version
- * allows continuous Markovian walk for special applications
+
+- post-publication version
+- allows continuous Markovian walk for special applications

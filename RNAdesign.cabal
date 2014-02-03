@@ -1,5 +1,5 @@
 name:           RNAdesign
-version:        0.1.0.0
+version:        0.1.1.0
 author:         Christian Hoener zu Siederdissen, 2013-2014
 copyright:      Christian Hoener zu Siederdissen, Stefan Hammer, Ingrid Abfalter, Ivo L. Hofacker, Christoph Flamm, Peter F. Stadler, 2013-2014
 maintainer:     choener@tbi.univie.ac.at
@@ -61,7 +61,7 @@ library
     BiobaseVienna             >= 0.3              ,
     BiobaseXNA                >= 0.7.0.1          ,
     ParsecTools               >= 0.0.2 && < 0.0.3 ,
-    PrimitiveArray            >= 0.5              ,
+    PrimitiveArray            >= 0.5.3            ,
     RNAFold                   >= 1.99.3.3         ,
     ViennaRNA-bindings        >= 0.1.0.0
   exposed-modules:
@@ -76,29 +76,9 @@ library
 
 executable RNAdesign
   build-depends:
-    base              >= 4 && < 5 ,
-    array             >= 0.4      ,
-    cmdargs           == 0.10.*   ,
-    containers                    ,
-    fgl               >= 5.4      ,
-    lens              >= 3.9      ,
-    monad-primitive   >= 0.1      ,
-    mwc-random-monad  >= 0.6      ,
-    parallel          >= 3.2      ,
-    parsec            >= 3        ,
-    primitive         >= 0.5      ,
-    random            >= 1.0      ,
-    transformers      >= 0.3      ,
-    tuple             >= 0.2      ,
-    vector            >= 0.10     ,
-    fgl-extras-decompositions >= 0.1.0.0          ,
-    BiobaseTurner             >= 0.3.1.1          ,
-    BiobaseVienna             >= 0.3              ,
-    BiobaseXNA                >= 0.7.0.1          ,
-    ParsecTools               >= 0.0.2 && < 0.0.3 ,
-    PrimitiveArray            >= 0.5              ,
-    RNAFold                   >= 1.99.3.3         ,
-    ViennaRNA-bindings        >= 0.1.0.0
+    bytestring        >= 0.10   ,
+    cmdargs           == 0.10.* ,
+    file-embed        >= 0.0.6
   main-is:
     RNAdesign.hs
   ghc-options:

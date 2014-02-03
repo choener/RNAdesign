@@ -1,3 +1,5 @@
+{-# LANGUAGE DoAndIfThenElse #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -15,9 +17,12 @@ module Main where
 import           Control.Arrow
 import           Control.Monad
 import           Data.Char (isAlpha)
+import           Data.FileEmbed
 import           Data.Function
 import           Data.List
 import           Data.Ord
+import           Data.Version (showVersion)
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.Vector.Fusion.Stream.Monadic as SM
 import qualified Data.Vector.Unboxed as VU
 import           System.Console.CmdArgs
@@ -34,85 +39,54 @@ import BioInf.RNAdesign
 import BioInf.RNAdesign.CandidateChain
 import BioInf.RNAdesign.Assignment
 
+import Paths_RNAdesign (version)
+
 
 
 -- * Configuration
 
 data Config = Config
-  { number      :: Int
-  , thin        :: Int
-  , burnin      :: Int
-  , scale       :: Double
-  , optfun      :: String
-  , veclen      :: Int
-  , turner      :: String
---  , exhaustive  :: Bool     -- TODO want to think about this for number of structures > 3, IF the total sequence space size is less than say 100.000
-  , initial     :: String
+  { number              :: Int
+  , thin                :: Int
+  , burnin              :: Int
+  , scale               :: Double
+  , optfun              :: String
+  , veclen              :: Int
+  , turner              :: String
+  , initial             :: String
   , sequenceConstraints :: Bool
-  , explore     :: Bool
+  , explore             :: Bool
+  , showManual          :: Bool
   } deriving (Show,Data,Typeable)
 
 config = Config
-  { number      =  50 &= help "Number of candidate sequences to generate (50)"
-  , thin        =  50 &= help "keep only every n'th sequence (50)"
-  , burnin      = 100 &= help "remove the first burnin sequences (100)"
-  , scale       =   1 &= help "acceptance scale parameter (1); exponentially distributed with mean 'scale^(-1)' (smaller scale means longer jumps)"
-  , optfun      = "sum(eos,all)" &= help "optimization function, \"sum(eos,all)\" tries to minimize the sum of the energies"
-  , veclen      = 1000000 &= help "multiple structure constraints lead to large connected components, veclen restricts the number of component solutions to store."
-  , turner      = "./params" &= help "directory containing the Turner 2004 RNA energy tables (with a default of \"./params/\""
---  , exhaustive  = False &= help "exhaustively search the nucleotide space"
-  , initial     = "" &= help "start from this initial sequence"
-  , explore     = def &= help "explore sequences, do not sort of nub list"
-  , sequenceConstraints = def &= help "activate sequence constraints"
-  } &= help shortHelp &= details longHelp &= summary "RNAdesign v0.1.0.0, (C) Christian Hoener zu Siederdissen 2013--2014, choener@tbi.univie.ac.at" &= program "RNAdesign"
+  { number              =  50             &= help "Number of candidate sequences to generate (50)"
+  , thin                =  50             &= help "keep only every n'th sequence (50)"
+  , burnin              = 100             &= help "remove the first burnin sequences (100)"
+  , scale               =   1             &= help "acceptance scale parameter (1); exponentially distributed with mean 'scale^(-1)' (smaller scale means longer jumps)"
+  , optfun              = "sum(eos,all)"  &= help "optimization function, \"sum(eos,all)\" tries to minimize the sum of the energies"
+  , veclen              = 1000000         &= help "multiple structure constraints lead to large connected components, veclen restricts the number of component solutions to store."
+  , turner              = "./params"      &= help "directory containing the Turner 2004 RNA energy tables (with a default of \"./params/\""
+  , initial             = ""              &= help "start from this initial sequence"
+  , explore             = def             &= help "explore sequences, do not sort of nub list"
+  , sequenceConstraints = def             &= help "activate sequence constraints"
+  , showManual          = def             &= help ""
+  } &= help shortHelp
+    &= details [] -- longHelp
+    &= summary ("RNAdesign " ++ showVersion version ++ " (C) Christian Hoener zu Siederdissen 2013--2014, choener@tbi.univie.ac.at")
+    &= program "RNAdesign"
 
 shortHelp = "The defaults work acceptably well and produce a results extremely fast. "
 
-longHelp =
-  [ "RNAdesign designs RNA sequences given one or more structural targets. The"
-  , "program offers a variety of optimization functions that each can be used to"
-  , "optimize candidate sequence towards a certain goal, say, minimal ensemble"
-  , "defect or small energetic distance to another target structure. By giving a"
-  , "complex \"--optfun\", many different design goals can be tried. The following"
-  , "functions are available:"
-  , "binary, combining:"
-  , "+ - * /  :: the four basic operations"
-  , "^        :: (^) generalized power function"
-  , ""
-  , "binary, apply function to many targets:"
-  , "sum max min   :: run function over set of targets: sum(eos,1,2) or sum(eos,all)"
-  , ""
-  , "unary, apply to single target:"
-  , "eos      :: energy of a structure: eos(1)"
-  , "ed       :: ensemble defect of a structure: ed(3)"
-  , "nullary, constant for the current sequence:"
-  , "Ged      :: global, weighted ensemble defect: Ged"
-  , "gibbs    :: gibbs free energy of sequence"
-  , "mfe      :: minimum free energy of sequence"
-  , ""
-  , "special:"
-  , "logMN    :: requires four parameters logMN(0.2,0.3,0.3,0.2) penalizes according to given mono-nucleotide distribution in order of ACGU"
-  , ""
-  , "A good optimization goal is (as an example for three targets):"
-  , "--optfun \"eos(1)+eos(2)+eos(3) - 3*gibbs +"
-  , "           1 * ((eos(1)-eos(2))^2 + (eos(1)-eos(3))^2 + (eos(2)-eos(3))^2)\""
-  , "This way, the sequence produces close-to-mfe foldings with the targets (left) and the targets are close together in terms of energy. (1 *) scales the two terms according to user choice."
-  , "\n\n\n"
-  , "If you find this tool useful, please cite:"
-  , ""
-  , "Christian Hoener zu Siederdissen, Stefan Hammer, Ingrid Abfalter, Ivo L. Hofacker, Christoph Flamm, Peter F. Stadler."
-  , "Computational Design of RNAs with Complex Energy Landscapes."
-  , "2013. Biopolymers. 99, no. 12. 99. 1124–36. http://dx.doi.org/10.1002/bip.22337."
-  , ""
-  , "Contact: choener@tbi.univie.ac.at"
-  , "Given one or more structures in dot-bracket format of the same length, returns a compatible assignment of nucleotides."
-  , "Compatible nucleotides are those that allow folding of the sequence into all given structures."
-  ]
+embeddedManual = $(embedFile "README.md")
 
 main = do
   hSetBuffering stdout NoBuffering
   hSetBuffering stderr NoBuffering
   cmds@Config{..} <- cmdArgs config
+  if showManual
+  then BS.putStrLn embeddedManual
+  else do
   turner <- fmap turnerToVienna $ TI.fromDir turner "" ".dat" 
   strs' <- fmap lines $ getContents
   let (scs,strs) = partition (any isAlpha) . filter ((">"/=) . take 1) $ strs'
