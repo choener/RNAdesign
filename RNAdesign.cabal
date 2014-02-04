@@ -1,7 +1,7 @@
 name:           RNAdesign
 version:        0.1.2.0
-author:         Christian Hoener zu Siederdissen, 2013-2014
-copyright:      Christian Hoener zu Siederdissen, Stefan Hammer, Ingrid Abfalter, Ivo L. Hofacker, Christoph Flamm, Peter F. Stadler, 2013-2014
+author:         Christian Hoener zu Siederdissen
+copyright:      Christian Hoener zu Siederdissen, 2013-2014
 maintainer:     choener@tbi.univie.ac.at
 category:       Bioinformatics
 synopsis:       Multi-target RNA sequence design
@@ -12,17 +12,23 @@ stability:      experimental
 cabal-version:  >= 1.6.0
 description:
                 The RNA sequence design problem asks for a single sequence that
-                readily folds into the one or more structural targets that are
-                given as input.
+                readily folds into the (one or more) structural targets that
+                are given as input.
                 .
                 This program expects on standard input a file with one or more
-                structures and, possibly, additional sequence constraints. It
-                will then run a Markov chain to find a sequence that is optimal
-                with regard to the structural targets and the user-defineable
-                optimization function.
+                structures and, possibly, additional sequence constraints in
+                the form of an IUPAC string. It will then run a Markov chain to
+                find a sequence that is optimal with regard to the structural
+                targets and the user-defineable optimization function.
                 .
                 The user can give different optimization criteria on the
                 command line, akin to a simple calculator.
+                .
+                For more details please consult:
+                <https://github.com/choener/RNAdesign/blob/master/README.md>
+                .
+                You can also run @RNAdesign --showmanual@ which will display
+                the same @README.md@.
                 .
                 .
                 .
