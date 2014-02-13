@@ -3,7 +3,7 @@
 cat sample-targets/sv11
 
 cat sample-targets/sv11 | tail -n2 | ./.cabal-sandbox/bin/RNAdesign -n 50 --thin 200 -b 100 --scale 2 \
-  --optfun "partc(1) + partc(2) + eos(1)+eos(2) - 2*gibbs + 1 * ((eos(1)-eos(2))^2)" \
+  --optfun "partc(1) + 0.1 * partc(2) + eos(1)+eos(2) - 2*gibbs + 1 * ((eos(1)-eos(2))^2)" \
   > sv11.out
 
 head -n 40 sv11.out
