@@ -1,5 +1,5 @@
 name:           RNAdesign
-version:        0.1.2.0
+version:        0.1.2.1
 author:         Christian Hoener zu Siederdissen
 copyright:      Christian Hoener zu Siederdissen, 2013-2014
 maintainer:     choener@tbi.univie.ac.at
@@ -71,7 +71,7 @@ library
     ParsecTools               >= 0.0.2 && < 0.0.3 ,
     PrimitiveArray            >= 0.5.3            ,
     RNAFold                   >= 1.99.3.3         ,
-    ViennaRNA-bindings        >= 0.1.1.0
+    ViennaRNA-bindings        >= 0.1.1.1
   exposed-modules:
     BioInf.RNAdesign
     BioInf.RNAdesign.Assignment

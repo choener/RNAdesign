@@ -60,8 +60,10 @@ ensembleDefect inp str = s where
 resolveOpt :: String -> t -> Primary -> [D1Secondary] -> Double
 resolveOpt optfun ener inp secs = parseOptString l sops mops gops props optfun where
   l = length secs
+  i = concatMap show $ VU.toList inp
   sops =
-    [ ("eos"   , \k -> unsafePerformIO $ RNA.eos (concatMap show (VU.toList inp)) (fromD1S $ secs !! (k-1)))
+    [ ("eos"   , \k -> unsafePerformIO $ RNA.eos i (fromD1S $ secs !! (k-1)))
+    , ("partc" , \k -> sel1 . unsafePerformIO $ RNA.partConstrained i (fromD1S $ secs !! (k-1)))
     , ("ed"    , \k -> ensembleDefect inp (secs !! (k-1))) -- ensemble defect
     ]
   mops =
@@ -71,8 +73,8 @@ resolveOpt optfun ener inp secs = parseOptString l sops mops gops props optfun w
     ]
   gops =
     [ ("Ged"   , probabilityDefectAll inp secs) -- global ensemble defect a la ``me''
-    , ("gibbs" , sel1 . unsafePerformIO $ RNA.part (concatMap show (VU.toList inp)))
-    , ("mfe"   , fst  . unsafePerformIO $ RNA.mfe (concatMap show (VU.toList inp)))
+    , ("gibbs" , sel1 . unsafePerformIO $ RNA.part i)
+    , ("mfe"   , fst  . unsafePerformIO $ RNA.mfe i)
     ]
   props =
     [ ("logMN", \ps -> lmn ps inp)
