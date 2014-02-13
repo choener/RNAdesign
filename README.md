@@ -77,6 +77,12 @@ sum max min   :: run function over set of targets: sum(eos,1,2) or sum(eos,all)
 
 eos      :: energy of a structure: eos(1)
 ed       :: ensemble defect of a structure: ed(3)
+partc    :: constrained partition function: partc(1).
+
+You probably want to use partc in conjunction with eos, where eos is modified
+by a small constant: "0.1 * eos(1) + partc(1)". eos guides the optimizer to the
+first viable sequence, after which the constrained partition function becomes
+active.
 
 ### nullary, constant for the current sequence:
 
